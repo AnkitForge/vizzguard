@@ -26,38 +26,52 @@ class CustomDense(tf.keras.layers.Dense):
 
 class SentinelInferenceEngine:
     def __init__(self, yolo_model_path='best.pt', lstm_model_path='violence_lstm_model.h5'):
-        print(f"[*] Initializing Sentinel Inference Engine...")
+        print(f"[*] Initializing Sentinel Inference Engine (Lazy Mode)...")
+        self.yolo_model_path = yolo_model_path
+        self.lstm_model_path = lstm_model_path
+        
+        # ── Lazy Protected Attributes ──
+        self._yolo_model = None
+        self._feature_extractor = None
+        self._lstm_model = None
         
         self.ensemble = ThreatEnsemble()
+        self.sequence_length = 20  
+        self.num_features = 1280   
+        self.feature_buffer = []   
 
-        # ── YOLO Model (Weapon Detection) ──
-        self.yolo_loaded = False
-        if os.path.exists(yolo_model_path):
-            try:
-                self.yolo_model = YOLO(yolo_model_path)
-                self.yolo_loaded = True
-                print(f"[+] YOLO model loaded: {yolo_model_path}")
-            except Exception as e:
-                print(f"[!] YOLO failed to load: {e}")
-        else:
-            print(f"[~] YOLO model not found at '{yolo_model_path}' — weapon detection disabled.")
+    @property
+    def yolo_model(self):
+        """Lazy load YOLO model for weapon detection."""
+        if self._yolo_model is None:
+            if os.path.exists(self.yolo_model_path):
+                print(f"[*] Lazy Loading YOLO Model: {self.yolo_model_path}")
+                self._yolo_model = YOLO(self.yolo_model_path)
+            else:
+                print(f"[!] YOLO model not found at '{self.yolo_model_path}'")
+        return self._yolo_model
 
-        # ── MobileNetV2 Model (Feature Extractor) ──
-        print("[*] Loading MobileNetV2 backbone for feature extraction...")
-        try:
-            self.feature_extractor = MobileNetV2(weights='imagenet', include_top=False, pooling='avg')
-            self.cnn_loaded = True
-            print("[+] MobileNetV2 backbone ready.")
-        except Exception as e:
-            print(f"[!] MobileNetV2 failed to load: {e}")
-            self.cnn_loaded = False
+    @property
+    def feature_extractor(self):
+        """Lazy load MobileNetV2 for feature extraction."""
+        if self._feature_extractor is None:
+            print("[*] Lazy Loading MobileNetV2 backbone...")
+            self._feature_extractor = MobileNetV2(weights='imagenet', include_top=False, pooling='avg')
+        return self._feature_extractor
 
-        # ── LSTM Model (Violence Detection) ──
-        self.lstm_loaded = False
-        self.lstm_model = None
-        self.sequence_length = 20  # Matched to your model summary
-        self.num_features = 1280   # Matched to MobileNetV2 output
-        self.feature_buffer = []   # Rolling buffer for CNN features
+    @property
+    def lstm_model(self):
+        """Lazy load LSTM model for violence detection."""
+        if self._lstm_model is None:
+            if os.path.exists(self.lstm_model_path):
+                print(f"[*] Lazy Loading LSTM Violence Model: {self.lstm_model_path}")
+                self._lstm_model = tf.keras.models.load_model(
+                    self.lstm_model_path, 
+                    custom_objects={'Dense': CustomDense}
+                )
+            else:
+                print(f"[!] LSTM model not found at '{self.lstm_model_path}'")
+        return self._lstm_model
         self.violence_threshold = 0.65  # Confidence threshold
 
         if os.path.exists(lstm_model_path):
@@ -87,7 +101,7 @@ class SentinelInferenceEngine:
 
     def _extract_cnn_features(self, frame):
         """Extract a 1280-dimension feature vector using MobileNetV2."""
-        if not self.cnn_loaded:
+        if self.feature_extractor is None:
             return None
         
         # Resize to 224x224 for MobileNetV2
@@ -102,7 +116,7 @@ class SentinelInferenceEngine:
 
     def _classify_violence(self):
         """Run LSTM inference on the buffered feature sequence."""
-        if not self.lstm_loaded or len(self.feature_buffer) < self.sequence_length:
+        if self.lstm_model is None or len(self.feature_buffer) < self.sequence_length:
             return False, 0.0
 
         # Take the last N frames as input sequence
@@ -129,7 +143,7 @@ class SentinelInferenceEngine:
         detections = []
 
         # ── 1. YOLO Detection (Weapon) ──
-        if self.yolo_loaded:
+        if self.yolo_model is not None:
             # Baseline confidence lowered back to 0.65 to ensure real weapons aren't missed
             # Higher precision is now handled by the XGBoost Ensemble layer
             results = self.yolo_model.predict(frame, conf=0.65, verbose=False)

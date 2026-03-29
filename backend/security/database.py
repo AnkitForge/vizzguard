@@ -6,7 +6,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # We set a default Postgres URL if one isn't in environment
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://vizzguard_user:SvA43HwyxwVZ7vPUmGSMPKWIhAkW32Qs@dpg-d744vvkr85hc73fknitg-a/vizzguar")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+# ── Cloud Compatibility Fix ──
+# Render and Azure often send 'postgres://', but SQLAlchemy requires 'postgresql://'
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Ensure SSL is specified for Azure Postgres (usually required)
+if "postgresql" in DATABASE_URL and "sslmode" not in DATABASE_URL:
+    separator = "&" if "?" in DATABASE_URL else "?"
+    DATABASE_URL += f"{separator}sslmode=require"
+
+# Fallback for local testing
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./sentinel_omni.db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
