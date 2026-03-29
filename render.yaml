@@ -5,7 +5,7 @@ services:
     env: docker
     dockerContext: .
     dockerfilePath: backend/Dockerfile
-    plan: starter # ML processing (YOLO/LSTM) requires at least 512MB-1GB RAM
+    plan: free # Testing on free tier (Note: AI processing may hit 512MB RAM limit)
     healthCheckPath: /api/v1/auth/me # Requires Auth, but checks if app is responsive
     envVars:
       - key: DATABASE_URL
