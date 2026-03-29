@@ -20,7 +20,7 @@ services:
         value: 1440
 
   # ── SENTINEL OMNI: REACT DASHBOARD ──
-  - type: static
+  - type: static_site
     name: sentinel-omni-dashboard
     env: static
     buildCommand: cd frontend && npm install && npm run build
