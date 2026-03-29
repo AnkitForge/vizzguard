@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply backdrop-blur-md;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #40475d;
+  border-radius: 10px;
+}
+
+@layer utilities {
+  .feed-overlay-gradient {
+    background: linear-gradient(to top, rgba(6, 13, 32, 0.8) 0%, rgba(6, 13, 32, 0) 40%);
+  }
+  .ai-scanner-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #3bbffa, transparent);
+    position: absolute;
+    width: 100%;
+    top: 0;
+    animation: scanDown 3s ease-in-out infinite;
+  }
+}
+
+/* Pulsing critical threat marker */
+@keyframes threatPulseCritical {
+  0%, 100% { stroke-opacity: 1; stroke-width: 3; }
+  50% { stroke-opacity: 0.4; stroke-width: 6; }
+}
+
+.threat-marker-critical {
+  animation: threatPulseCritical 1.2s ease-in-out infinite;
+}
+
+/* Scanning line moving down a feed */
+@keyframes scanDown {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Holographic glow for high-priority panels */
+@keyframes holoGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(59, 191, 250, 0.1), inset 0 0 15px rgba(59, 191, 250, 0.05); }
+  50% { box-shadow: 0 0 25px rgba(59, 191, 250, 0.2), inset 0 0 25px rgba(59, 191, 250, 0.1); }
+}
+
+.holographic-glow {
+  animation: holoGlow 3s ease-in-out infinite;
+}
+
+/* Smooth card hover lift */
+@layer utilities {
+  .card-hover {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Leaflet popup overrides */
+.leaflet-popup-content-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.leaflet-popup-tip-container {
+  display: none !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+/* Recharts tooltip container resets */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Base Leaflet cursors — Google Maps style */
+.leaflet-container {
+  cursor: grab !important;
+}
+
+/* Closed hand when dragging */
+.leaflet-dragging .leaflet-container {
+  cursor: grabbing !important;
+}
+
+/* Pointer cursor when hovering interactive elements (markers, etc.) */
+.leaflet-interactive {
+  cursor: pointer !important;
+}

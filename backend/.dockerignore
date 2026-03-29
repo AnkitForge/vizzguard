@@ -1,0 +1,22 @@
+# Exclude heavy Local Python artifacts
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Exclude Local DB
+*.db
+sentinel_omni.db
+
+# Exclude Log files
+logs/
+*.log
+
+# Exclude temp analysis files
+temp_analysis/
+
+# Exclude IDE and Git
+.git/
+.gitignore
+.vscode/
+.idea/

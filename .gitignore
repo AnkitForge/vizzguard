@@ -1,0 +1,50 @@
+# Environments
+venv/
+venv_backend/
+venv_sentinel/
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+frontend/dist/
+build/
+bin/
+obj/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+.pytest_cache/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & Temporary Data
+backend/backend.log
+backend/temp_analysis/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large model data (Optional - staged for LFS if needed, otherwise uncomment to ignore)
+# edge/best.pt
+# edge/violence_lstm_model.h5
+# edge/pose_landmarker.task
